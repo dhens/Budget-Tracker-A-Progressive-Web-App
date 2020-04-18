@@ -78,6 +78,17 @@ function populateChart() {
   });
 }
 
+const saveRecord = (transaction) => {
+  let db;
+  const request = window.indexedDB.open("offlineExpenses", 1);
+  request.onerror = (err) => {
+    res.send("IndexedDB init failed!")
+  }
+  request.onsuccess = (event) => {
+    db = event.target.result;
+  }
+}
+
 function sendTransaction(isAdding) {
   let nameEl = document.querySelector("#t-name");
   let amountEl = document.querySelector("#t-amount");
