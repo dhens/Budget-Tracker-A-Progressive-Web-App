@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Transaction = require("../models/transaction.js");
+const path = require("path");
 
 router.post("/api/transaction", ({body}, res) => {
   Transaction.create(body)
@@ -12,7 +13,7 @@ router.post("/api/transaction", ({body}, res) => {
 });
 
 router.post("/api/transaction/bulk", ({body}, res) => {
-  Transaction.insertMany(body)
+  Transaction.create(body)
     .then(dbTransaction => {
       res.json(dbTransaction);
     })
@@ -29,6 +30,10 @@ router.get("/api/transaction", (req, res) => {
     .catch(err => {
       res.status(404).json(err);
     });
+});
+
+router.get("/", function(req, res) {
+  res.json(path.join(__dirname, "public/index.html"));
 });
 
 module.exports = router;
