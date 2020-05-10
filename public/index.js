@@ -80,11 +80,11 @@ const populateChart = () => {
 
 const saveRecord = transaction => {
   let db;
-  const request = window.indexedDB.open("pendingDb", 1);
-  request.onerror = (err) => {
+  const req = window.indexedDB.open("pendingDb", 1);
+  req.onerror = (err) => {
     res.send("IndexedDB init failed!")
   }
-  request.onsuccess = (event) => {
+  req.onsuccess = (event) => {
     db = event.target.result;
   }
 }
