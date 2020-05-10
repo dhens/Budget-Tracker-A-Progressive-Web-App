@@ -1,6 +1,32 @@
 let transactions = [];
 let myChart;
+let db;
 
+// CREATE INDEXEDDB
+const req = indexedDB.open("pendingDb", 1);
+
+// WHEN UPDATE HAPPENS
+req.onupgradeneeded = function (event) {
+  // create object store called "pending" and set autoIncrement to true
+  const db = event.target.result;
+  db.createObjectStore("pending", { autoIncrement: true });
+};
+
+// IF REQUEST RESULTS IN SUCCESS
+req.onsuccess = function (event) {
+  db = event.target.result;
+  //check if the browser is online, if yes post the pending data to mongoose database 
+  if (navigator.onLine) {
+    sendIndexedDbData();
+  }
+};
+
+// IF REQUEST RESULTS IN FAILURE
+req.onerror = (event) => {
+  console.log("Error occured : " + event.target.errorCode);
+}
+
+// GET ALL DB DATA TO USE FOR POPULATING CHART
 fetch("/api/transaction")
   .then(response => {
     return response.json();
@@ -27,7 +53,6 @@ const populateTotal = () => {
 const populateTable = () => {
   let tbody = document.querySelector("#tbody");
   tbody.innerHTML = "";
-
   transactions.forEach(transaction => {
     // create and populate a table row
     let tr = document.createElement("tr");
@@ -35,7 +60,6 @@ const populateTable = () => {
       <td>${transaction.name}</td>
       <td>${transaction.value}</td>
     `;
-
     tbody.appendChild(tr);
   });
 }
@@ -44,7 +68,6 @@ const populateChart = () => {
   // copy array and reverse it
   let reversed = transactions.slice().reverse();
   let sum = 0;
-
   // create date labels for chart
   let labels = reversed.map(t => {
     let date = new Date(t.date);
@@ -66,27 +89,16 @@ const populateChart = () => {
 
   myChart = new Chart(ctx, {
     type: 'line',
-      data: {
-        labels,
-        datasets: [{
-            label: "Total Over Time",
-            fill: true,
-            backgroundColor: "#6666ff",
-            data
-        }]
+    data: {
+      labels,
+      datasets: [{
+        label: "Total Over Time",
+        fill: true,
+        backgroundColor: "#6666ff",
+        data
+      }]
     }
   });
-}
-
-const saveRecord = transaction => {
-  let db;
-  const req = window.indexedDB.open("offlineExpenses", 1);
-  req.onerror = (err) => {
-    res.send("IndexedDB init failed!")
-  }
-  req.onsuccess = (event) => {
-    db = event.target.result;
-  }
 }
 
 const sendTransaction = isAdding => {
@@ -122,7 +134,7 @@ const sendTransaction = isAdding => {
   populateChart();
   populateTable();
   populateTotal();
-  
+
   // also send to server
   fetch("/api/transaction", {
     method: "POST",
@@ -132,33 +144,34 @@ const sendTransaction = isAdding => {
       "Content-Type": "application/json"
     }
   })
-  .then(response => {    
-    return response.json();
-  })
-  .then(data => {
-    if (data.errors) {
-      errorEl.textContent = "Missing Information";
-    }
-    else {
+    .then(response => {
+      //   setTimeout() 
+      return response.json();
+    })
+    .then(data => {
+      if (data.errors) {
+        errorEl.textContent = "Missing Information";
+      }
+      else {
+        // clear form
+        nameEl.value = "";
+        amountEl.value = "";
+      }
+    })
+    .catch(err => {
+      // fetch failed, so save in indexed db
+      saveRecord(transaction);
+
       // clear form
       nameEl.value = "";
       amountEl.value = "";
-    }
-  })
-  .catch(err => {
-    // fetch failed, so save in indexed db
-    saveRecord(transaction);
-
-    // clear form
-    nameEl.value = "";
-    amountEl.value = "";
-  });
+    });
 }
 
-document.querySelector("#add-btn").onclick = function() {
+document.querySelector("#add-btn").onclick = function () {
   sendTransaction(true);
 };
 
-document.querySelector("#sub-btn").onclick = function() {
+document.querySelector("#sub-btn").onclick = function () {
   sendTransaction(false);
 };
