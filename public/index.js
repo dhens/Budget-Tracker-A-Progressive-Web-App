@@ -78,7 +78,7 @@ const populateChart = () => {
   });
 }
 
-const saveRecord = () => {
+const saveRecord = transaction => {
   let db;
   const request = window.indexedDB.open("offlineExpenses", 1);
   request.onerror = (err) => {
