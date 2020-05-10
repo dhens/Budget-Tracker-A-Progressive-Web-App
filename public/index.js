@@ -168,6 +168,47 @@ const sendTransaction = isAdding => {
     });
 }
 
+const sendIndexedDbData = () => {
+  const transaction = db.transaction(["pending"], "readwrite");
+  const store = transaction.objectStore("pending");
+  const getAllPending = store.getAll();
+  getAllPending.onsuccess = () => {
+    if (getAllPending.result.length > 0) {
+      fetch("/api/transaction/bulk", {
+        method: "POST",
+        body: JSON.stringify(getAllPending.result),
+        headers: {
+          Accept: "application/json, text/plain, */*",
+          "Content-Type": "application/json"
+        }
+      })
+        .then(response => {
+          return response.json();
+        })
+        .then(() => {
+          const transaction = db.transaction(["pending"], "readwrite");
+
+          // access your pending object store
+          const store = transaction.objectStore("pending");
+
+          // clear all items in your store
+          store.clear();
+        });
+    }
+  }
+}
+
+const saveRecord = pendingData => {
+  const transaction = db.transaction(["pending"], "readwrite");
+  const store = transaction.objectStore("pending");
+  store.add(pendingData);
+}
+
+const pushOfflineData = () => {
+  sendIndexedDbData();
+  location.reload();
+}
+
 document.querySelector("#add-btn").onclick = function () {
   sendTransaction(true);
 };
