@@ -1,6 +1,6 @@
 let db;
 
-const req = window.indexedDB.open("pendingDb", 1);
+const req = window.indexedDB.open("offlineExpenses", 1);
 
 req.onupgradeneeded = function (event) {
     db = event.target.result;
