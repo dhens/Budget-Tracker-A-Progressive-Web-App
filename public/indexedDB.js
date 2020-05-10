@@ -9,8 +9,6 @@ req.onupgradeneeded = function (event) {
 
 req.onsuccess = event => {
     db = event.target.result;
-
-    // check if app is online before reading from db
     if (navigator.onLine) {
         readDb();
     }
