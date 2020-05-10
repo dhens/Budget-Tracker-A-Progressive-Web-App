@@ -14,7 +14,7 @@ fetch("/api/transaction")
     populateChart();
   });
 
-function populateTotal() {
+const populateTotal = () => {
   // reduce transaction amounts to a single total value
   let total = transactions.reduce((total, t) => {
     return total + parseInt(t.value);
@@ -24,7 +24,7 @@ function populateTotal() {
   totalEl.textContent = total;
 }
 
-function populateTable() {
+const populateTable = () => {
   let tbody = document.querySelector("#tbody");
   tbody.innerHTML = "";
 
@@ -40,7 +40,7 @@ function populateTable() {
   });
 }
 
-function populateChart() {
+const populateChart = () => {
   // copy array and reverse it
   let reversed = transactions.slice().reverse();
   let sum = 0;
@@ -78,7 +78,7 @@ function populateChart() {
   });
 }
 
-const saveRecord = (transaction) => {
+const saveRecord = () => {
   let db;
   const request = window.indexedDB.open("offlineExpenses", 1);
   request.onerror = (err) => {
@@ -89,7 +89,7 @@ const saveRecord = (transaction) => {
   }
 }
 
-function sendTransaction(isAdding) {
+const sendTransaction = isAdding => {
   let nameEl = document.querySelector("#t-name");
   let amountEl = document.querySelector("#t-amount");
   let errorEl = document.querySelector(".form .error");
