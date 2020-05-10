@@ -3,6 +3,7 @@ const Transaction = require("../models/transaction.js");
 const path = require("path");
 
 router.post("/api/transaction", ({body}, res) => {
+  console.log(body);
   Transaction.create(body)
     .then(dbTransaction => {
       res.json(dbTransaction);
@@ -13,6 +14,7 @@ router.post("/api/transaction", ({body}, res) => {
 });
 
 router.post("/api/transaction/bulk", ({body}, res) => {
+  console.log( body );
   Transaction.create(body)
     .then(dbTransaction => {
       res.json(dbTransaction);
